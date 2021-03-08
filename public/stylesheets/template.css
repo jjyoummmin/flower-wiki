@@ -1,0 +1,57 @@
+body {
+  padding: 0px;
+  margin:0px;
+  font-family: 'Do Hyeon', sans-serif;
+}
+
+ul {
+  list-style-type: none;
+  margin:0px;
+  padding:0px;
+  overflow:hidden;
+  background :#333;
+  position:fixed;
+  width:100vw;
+  z-index: 2;
+
+}
+
+li{
+  float:left;
+}
+
+li a{
+  display :block;
+  color:white;
+  text-decoration: none;
+  text-align: center;
+  font-weight: bold;
+  padding:14px 16px;
+  margin:0px;
+}
+
+
+li a:hover{
+  background-color :#111;
+}
+
+#current{
+  position: absolute;
+  z-index: 2;
+  top:60px;
+  left:13px;
+  padding:13px;
+  background: rgba(255, 255, 255, 0.726);
+  font-size: 17px;
+  font-weight:lighter;
+  text-align: center;
+  border-radius: 6px;
+  cursor:pointer;
+
+}
+
+#current:hover{
+  background-color: rgba(247, 223, 223, 0.726);
+}
+
+
