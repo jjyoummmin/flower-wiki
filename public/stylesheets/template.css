@@ -4,7 +4,7 @@ body {
   font-family: 'Do Hyeon', sans-serif;
 }
 
-ul {
+#navbar {
   list-style-type: none;
   margin:0px;
   padding:0px;
@@ -16,7 +16,7 @@ ul {
 
 }
 
-li{
+#navbar > li{
   float:left;
 }
 
@@ -33,6 +33,8 @@ li a{
 
 li a:hover{
   background-color :#111;
+  text-decoration: none;
+  color:white;
 }
 
 #current{
@@ -53,5 +55,11 @@ li a:hover{
 #current:hover{
   background-color: rgba(247, 223, 223, 0.726);
 }
+
+
+
+
+
+
 
 

@@ -4,3 +4,10 @@ var mapOptions = {
 };
 
 var map = new naver.maps.Map('map', mapOptions);
+
+$(document).ready(()=>{
+    $(".select_elem").on("click", function(e){
+        let t = $(e.target).text()
+        console.log(`selected : ${t}`)
+    })
+})
