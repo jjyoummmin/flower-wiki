@@ -12,7 +12,7 @@ let flowers = ["개나리", "해바라기", "소나무"];
 
     let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
     let content = `
-    <div style="padding:15px">
+    <div style="padding:10px">
         <div class="dropdown">
             <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">꽃
             <span class="caret"></span></button>
@@ -21,11 +21,13 @@ let flowers = ["개나리", "해바라기", "소나무"];
                 ${flower_elems}
             </ul>
         </div>
-        <button style="margin:5px">등록</button>
-        <button style="margin:5px">취소</button>
+        <button style="margin:5px" class="submit_btn">등록</button>
+        <button style="margin:5px" class="cancel_btn">취소</button>
     </div>`;
     var infowindow = new kakao.maps.InfoWindow({content:content});
     var initial_click = true;
+    let selected_flower;
+
     let event_register = () => {
         $(document).ready(function(){
             $("#myInput").on("keyup", function() {
@@ -36,9 +38,24 @@ let flowers = ["개나리", "해바라기", "소나무"];
             });
           
             $(".el").on("click", function(e){
-              let t = $(e.target).text();
-              console.log(t,"clicked..");
-            })    
+              selected_flower = $(e.target).text();
+              console.log(selected_flower,"clicked..");
+            });
+            
+            $(".cancel_btn").on("click", function(e){
+                infowindow.close();
+                marker.setMap(null);
+            });
+
+            $(".submit_btn").on("click", function(e){
+                if(!selected_flower){
+                    alert("꽃을 선택해 주세요!");
+                    return;
+                }
+                console.log(selected_flower+"를 등록합니다.")
+                infowindow.close();
+                marker.setMap(null);
+            });
         });
     }
 
