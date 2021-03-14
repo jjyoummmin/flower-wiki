@@ -29,11 +29,10 @@ $(function () {
             url: url,
             data: data,
         }).done((res)=>{
-            console.log(res);
-            alert(`성공적으로 ${msg} 했습니다.`);
+            if(res=="success") alert(`성공적으로 ${msg} 했습니다.`);
+            else alert(`${msg} 실패했습니다.`);
         }).fail((err)=>{
             console.log(err);
-            alert(`${msg} 실패했습니다.`);
         })
     };
 
@@ -59,6 +58,7 @@ $(function () {
         var register_infowindow = new kakao.maps.InfoWindow({ content: content });
         var initial_click = true;
         let selected_flower;
+        let pos;
 
         let event_register = () => {
             $("#myInput").on("keyup", function () {
@@ -84,6 +84,8 @@ $(function () {
                     return;
                 }
                 console.log(selected_flower + "를 등록합니다.")
+                let new_data ={ flower_type: selected_flower, lat:pos[0], lng:pos[1]};
+                sendPostReq('/flower_register',new_data,"등록");
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
@@ -92,6 +94,7 @@ $(function () {
 
         kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
             var latlng = mouseEvent.latLng;
+            pos = [latlng.Ma, latlng.La];
             register_marker.setPosition(latlng);
             register_infowindow.setPosition(latlng);
             selected_flower=null;
@@ -108,6 +111,11 @@ $(function () {
 
     })(); //register marker, infowindow
 
+
+    // let add_new_info_marker = function(){
+
+    // }
+
     //기존 등록 정보 마커로 표시, 삭제 인포윈도우
     (function(){
         $.ajax({
@@ -118,12 +126,12 @@ $(function () {
                 alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
                 return;
             }
-            //const data = res.data;
-            let data = [
-                {flower_type:"해바라기", lat:37.28987375366218 , lng:127.0718948842586 },
-                {flower_type:"벚꽃", lat:37.28567600656164 , lng: 127.08206492135476 },
-                {flower_type:"맨드라미", lat:37.2844288046344,  lng:127.05870442239306 },
-            ]
+            const data = res.data;
+            // let data = [
+            //     {flower_type:"해바라기", lat:37.28987375366218 , lng:127.0718948842586 },
+            //     {flower_type:"벚꽃", lat:37.28567600656164 , lng: 127.08206492135476 },
+            //     {flower_type:"맨드라미", lat:37.2844288046344,  lng:127.05870442239306 },
+            // ]
 
 
             var infowindow = new kakao.maps.InfoWindow({removable:true});

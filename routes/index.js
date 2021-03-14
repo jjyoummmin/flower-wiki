@@ -38,7 +38,7 @@ router.get('/flower_fetch', function(req, res, next) {
 router.post('/flower_register', function(req, res, next) {
   let location = new locationModel();
   let body = req.body;
-  location.flower_type = body.title;
+  location.flower_type = body.flower_type;
   location.lat = body.lat;
   location.lng = body.lng;
   // save to db
