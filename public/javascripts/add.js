@@ -23,6 +23,20 @@ $(function () {
         }
     });
 
+    let sendPostReq = function (url, data, msg) {
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: data,
+        }).done((res)=>{
+            console.log(res);
+            alert(`성공적으로 ${msg} 했습니다.`);
+        }).fail((err)=>{
+            console.log(err);
+            alert(`${msg} 실패했습니다.`);
+        })
+    };
+
     //마커, 인포윈도우 (새로 등록)
     (function () {
         var register_marker = new kakao.maps.Marker();
@@ -92,12 +106,12 @@ $(function () {
             }
         });
 
-    })(); //marker, infowindow
+    })(); //register marker, infowindow
 
     //기존 등록 정보 마커로 표시, 삭제 인포윈도우
     (function(){
         $.ajax({
-            url: "/flower_get",
+            url: "/flower_fetch",
             type: "GET",
         }).done((res) => {
             if (res.message != "success"){
@@ -115,33 +129,38 @@ $(function () {
             var infowindow = new kakao.maps.InfoWindow({removable:true});
             var iwcontent = (flower) =>{
                 return `<div>${flower}</div>
-                        <button>삭제</button>`;
+                        <button class="delete_btn">삭제</button>`;
             }
 
+            let clickHandler= function (flower,marker) {  
+                return () =>{
+                    infowindow.setContent(iwcontent(flower));
+                    infowindow.open(map, marker);
+                    $(".delete_btn").on("click", deleteHandler());
+                };    
+            }
+
+            let deleteHandler = function (){
+                return ()=>{
+                    console.log("삭제합니다");
+                    infowindow.close();
+                }
+            }
+        
             for (var target of data) {
                 var latlng = new kakao.maps.LatLng(target.lat, target.lng)
                 var marker = new kakao.maps.Marker({
                     map: map, 
                     position: latlng
                 });
-            
 
                 kakao.maps.event.addListener(marker, 'click', clickHandler(target.flower_type,marker));
             }
+        }).fail((err)=>{
+            console.log(err);
+        });
 
-            
-            
-            function clickHandler(flower,marker) {
-                return () =>{
-                    infowindow.setContent(iwcontent(flower));
-                    infowindow.open(map, marker);
-                };    
-            }
-           
-        
-        })
-
-    })(); // get_flowers
+    })(); // fetch flowers
 
 });  //document ready
 

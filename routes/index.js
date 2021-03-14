@@ -25,7 +25,7 @@ router.get('/add', function(req, res, next) {
 });
 
 
-router.get('/flower_get', function(req, res, next) {
+router.get('/flower_fetch', function(req, res, next) {
   locationModel.find({},{_id:0, __v:0})
                .then((result)=>{
                  res.json({message:"success", data:result})
@@ -35,34 +35,25 @@ router.get('/flower_get', function(req, res, next) {
 });
 
 
-
-// router.post('/flower_register', function(req, res, next) {
-//   let location = new locationModel();
-//   location.title = req.body.title;
-//   location.address = req.body.address;
-//   location.lat = req.body.lat;
-//   location.lng = req.body.lng;
-//   console.log(req.body);
-//   // save to db
-//   location.save()
-//           .then((result)=>{
-//             res.send("success");
-//           })
-//           .catch((error)=>{
-//             console.log(error);
-//             res.send("failed");
-//           })
-// });
+router.post('/flower_register', function(req, res, next) {
+  let location = new locationModel();
+  let body = req.body;
+  location.flower_type = body.title;
+  location.lat = body.lat;
+  location.lng = body.lng;
+  // save to db
+  location.save()
+          .then((result)=>{
+            res.send("success");
+          })
+          .catch((error)=>{
+            console.log(error);
+            res.send("failed");
+          })
+});
 
 // router.post('/flower_delete', function(req, res, next) {
-//   locationModel.find({},{_id:0, __v:0})
-//                .then((result)=>{
-//                  console.log(result);
-//                  res.json({message:"success", data:result})
-//                }).catch((error)=>{
-//                  console.log(error);
-//                  res.json({message:"error"});
-//                })
+//    res.send("삭제 ㅎㅎ");
 // });
 
 module.exports = router;
