@@ -9,7 +9,7 @@ $(function () {
     var map = new kakao.maps.Map(container, options);
 
     // 현재 위치 클릭
-    $("#current").on("click", function(e){
+    $("#current").on("click", function (e) {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
                 let lat = position.coords.latitude;
@@ -28,15 +28,15 @@ $(function () {
             type: "POST",
             url: url,
             data: data,
-        }).done((res)=>{
-            if(res=="success") alert(`성공적으로 ${msg} 했습니다.`);
+        }).done((res) => {
+            if (res == "success") alert(`성공적으로 ${msg} 했습니다.`);
             else alert(`${msg} 실패했습니다.`);
-        }).fail((err)=>{
+        }).fail((err) => {
             console.log(err);
         })
     };
 
-    //마커, 인포윈도우 (새로 등록)
+    //새로 등록하는 용 마커, 인포윈도우 (register) 지도 클릭하면 뜨는 것
     (function () {
         var register_marker = new kakao.maps.Marker();
 
@@ -84,8 +84,9 @@ $(function () {
                     return;
                 }
                 console.log(selected_flower + "를 등록합니다.")
-                let new_data ={ flower_type: selected_flower, lat:pos[0], lng:pos[1]};
-                sendPostReq('/flower_register',new_data,"등록");
+                let new_data = { flower_type: selected_flower, lat: pos[0], lng: pos[1] };
+                sendPostReq('/flower_register', new_data, "등록");
+                add_new_info_marker(new_data);
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
@@ -97,7 +98,7 @@ $(function () {
             pos = [latlng.Ma, latlng.La];
             register_marker.setPosition(latlng);
             register_infowindow.setPosition(latlng);
-            selected_flower=null;
+            selected_flower = null;
 
             register_marker.setMap(map);
             register_infowindow.open(map, register_marker);
@@ -111,64 +112,60 @@ $(function () {
 
     })(); //register marker, infowindow
 
+    //이미 등록되어 있는 정보 마커로 표시하는 함수 (클로저로 구현)
+    let add_new_info_marker = (function () {
+        var infowindow = new kakao.maps.InfoWindow({ removable: true });
+        var iwcontent = (flower) => {
+            return `<div>${flower}</div>
+                    <button class="delete_btn">삭제</button>`;
+        }
 
-    // let add_new_info_marker = function(){
+        let clickHandler = function (flower, marker) {
+            return () => {
+                infowindow.setContent(iwcontent(flower));
+                infowindow.open(map, marker);
+                $(".delete_btn").on("click", deleteHandler());
+            };
+        }
 
-    // }
+        let deleteHandler = function () {
+            return () => {
+                console.log("삭제합니다");
+                infowindow.close();
+            }
+        }
 
-    //기존 등록 정보 마커로 표시, 삭제 인포윈도우
-    (function(){
+        let marker_func = function (target) {
+            var latlng = new kakao.maps.LatLng(target.lat, target.lng)
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: latlng
+            });
+
+            kakao.maps.event.addListener(marker, 'click', clickHandler(target.flower_type, marker));
+        }
+        return marker_func;
+    })();   // render one marker
+
+    //db 모든 정보 가져와서 마커로 표시하기
+    (function () {
         $.ajax({
             url: "/flower_fetch",
             type: "GET",
         }).done((res) => {
-            if (res.message != "success"){
+            if (res.message != "success") {
                 alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
                 return;
             }
             const data = res.data;
-            // let data = [
-            //     {flower_type:"해바라기", lat:37.28987375366218 , lng:127.0718948842586 },
-            //     {flower_type:"벚꽃", lat:37.28567600656164 , lng: 127.08206492135476 },
-            //     {flower_type:"맨드라미", lat:37.2844288046344,  lng:127.05870442239306 },
-            // ]
-
-
-            var infowindow = new kakao.maps.InfoWindow({removable:true});
-            var iwcontent = (flower) =>{
-                return `<div>${flower}</div>
-                        <button class="delete_btn">삭제</button>`;
-            }
-
-            let clickHandler= function (flower,marker) {  
-                return () =>{
-                    infowindow.setContent(iwcontent(flower));
-                    infowindow.open(map, marker);
-                    $(".delete_btn").on("click", deleteHandler());
-                };    
-            }
-
-            let deleteHandler = function (){
-                return ()=>{
-                    console.log("삭제합니다");
-                    infowindow.close();
-                }
-            }
-        
             for (var target of data) {
-                var latlng = new kakao.maps.LatLng(target.lat, target.lng)
-                var marker = new kakao.maps.Marker({
-                    map: map, 
-                    position: latlng
-                });
-
-                kakao.maps.event.addListener(marker, 'click', clickHandler(target.flower_type,marker));
+                add_new_info_marker(target);
             }
-        }).fail((err)=>{
+        }).fail((err) => {
             console.log(err);
         });
 
-    })(); // fetch flowers
+    })(); // fetch all flowers
 
 });  //document ready
 
