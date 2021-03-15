@@ -27,8 +27,11 @@ router.get('/add', function (req, res, next) {
 });
 
 
-router.get('/flower_fetch', function (req, res, next) {
-  locationModel.find()
+router.post('/flower_fetch', function (req, res, next) {
+  let season = req.body.season;
+  console.log("season:",season);
+  let filter = (season=="전체") ? {} : {season};
+  locationModel.find(filter)
     .then((result) => {
       res.json({ message: "success", data: result })
     }).catch((error) => {

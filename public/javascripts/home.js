@@ -5,6 +5,8 @@ $(function(){
     };
     
     var map = new naver.maps.Map('map', mapOptions);
+    
+    let markerList = [];
 
     //현재 위치 클릭
     $("#current").click(() => {
@@ -21,17 +23,9 @@ $(function(){
         }
     });
     
-    //계절 메뉴 클릭
-    $(".select_elem").on("click", function(e){
-        let t = $(e.target).text()
-        //let season = (t=="전체") ? all_flowers : flowers[t];
-        console.log(`selected : ${t}`)
-        //console.log(season);
-    });
-
-
+    
     //마커 표시 하기
-    (function(){
+    let render = function(season){
         let clickHandler = function (marker, infowindow){
             return () => {
                 if (infowindow.getMap()) {
@@ -44,7 +38,8 @@ $(function(){
     
         $.ajax({
             url: "/flower_fetch",
-            type: "GET",
+            type: "POST",
+            data: {season}
         }).done((res) => {
             if (res.message != "success") {
                 alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
@@ -57,6 +52,8 @@ $(function(){
                     position: new naver.maps.LatLng(target.lat, target.lng),
                     map: map
                 }); 
+
+                markerList.push(marker);
                 
                 var infowindow = new naver.maps.InfoWindow({
                     content: target.flower_type
@@ -69,7 +66,18 @@ $(function(){
             console.log(err);
         });
 
-    })();  // render all markers
+    };  // render seasonal markers
+
+    render("전체");
+    
+    //계절 메뉴 클릭
+    $(".select_elem").on("click", function(e){
+        markerList.forEach(m=>m.setMap(null));
+        markerList = [];
+        let season = $(e.target).text()
+        console.log(`selected : ${season}`)
+        render(season);
+    });
     
 
 })

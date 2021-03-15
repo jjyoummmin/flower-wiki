@@ -174,7 +174,8 @@ $(function () {
     //db 모든 정보 가져와서 마커로 표시하기
     $.ajax({
         url: "/flower_fetch",
-        type: "GET",
+        type: "POST",
+        data: {season:"전체"}
     }).done((res) => {
         if (res.message != "success") {
             alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
