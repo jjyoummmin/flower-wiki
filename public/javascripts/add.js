@@ -48,7 +48,8 @@ $(function () {
     (function () {
         var register_marker = new kakao.maps.Marker();
 
-        let flowers = ["개나리", "해바라기", "소나무"];
+        // let flowers = ["개나리", "해바라기", "소나무"];
+        let flowers = all_flowers;
         let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
         let content = `
         <div style="padding:10px">
@@ -82,6 +83,7 @@ $(function () {
             });
 
             $(".cancel_btn").on("click", function (e) {
+                $("#myInput").val("");
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
@@ -98,6 +100,7 @@ $(function () {
                     console.log("db에 등록 :",registered_doc);
                     add_new_info_marker(registered_doc);
                 })
+                $("#myInput").val("");
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
