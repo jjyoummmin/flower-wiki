@@ -23,17 +23,24 @@ $(function () {
         }
     });
 
-    let sendPostReq = function (url, data, msg) {
-        $.ajax({
+    let sendPostReq = async function (url, data, msg) {
+        let registered_doc=null;
+        await $.ajax({
             type: "POST",
             url: url,
             data: data,
         }).done((res) => {
-            if (res == "success") alert(`성공적으로 ${msg} 했습니다.`);
-            else alert(`${msg} 실패했습니다.`);
+            if (res.message == "success"){
+                alert(`성공적으로 ${msg} 했습니다.`);
+                registered_doc = res.data;
+            } 
+            else{
+                alert(`${msg} 실패했습니다.`);
+            } 
         }).fail((err) => {
             console.log(err);
         })
+        return registered_doc;
     };
 
     //새로 등록하는 용 마커, 인포윈도우 (register) 지도 클릭하면 뜨는 것
@@ -85,8 +92,11 @@ $(function () {
                 }
                 console.log(selected_flower + "를 등록합니다.")
                 let new_data = { flower_type: selected_flower, lat: pos[0], lng: pos[1] };
-                sendPostReq('/flower_register', new_data, "등록");
-                add_new_info_marker(new_data);
+                // async 키워드를 썼기대문에 이제 sendPostReq함수는 promise를 리턴함!
+                sendPostReq('/flower_register', new_data, "등록").then((registered_doc)=>{
+                    console.log("registered:",registered_doc);
+                    add_new_info_marker(registered_doc);
+                })
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
@@ -120,17 +130,17 @@ $(function () {
                     <button class="delete_btn">삭제</button>`;
         }
 
-        let clickHandler = function (flower, marker) {
+        let clickHandler = function (target, marker) {
             return () => {
-                infowindow.setContent(iwcontent(flower));
+                infowindow.setContent(iwcontent(target.flower_type));
                 infowindow.open(map, marker);
-                $(".delete_btn").on("click", deleteHandler());
+                $(".delete_btn").on("click", deleteHandler(target));
             };
         }
 
-        let deleteHandler = function () {
+        let deleteHandler = function (target) {
             return () => {
-                console.log("삭제합니다");
+                console.log("삭제합니다 :", target);
                 infowindow.close();
             }
         }
@@ -142,7 +152,7 @@ $(function () {
                 position: latlng
             });
 
-            kakao.maps.event.addListener(marker, 'click', clickHandler(target.flower_type, marker));
+            kakao.maps.event.addListener(marker, 'click', clickHandler(target, marker));
         }
         return marker_func;
     })();   // render one marker
@@ -159,6 +169,7 @@ $(function () {
             }
             const data = res.data;
             for (var target of data) {
+                console.log(target);
                 add_new_info_marker(target);
             }
         }).fail((err) => {

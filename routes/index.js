@@ -26,7 +26,7 @@ router.get('/add', function(req, res, next) {
 
 
 router.get('/flower_fetch', function(req, res, next) {
-  locationModel.find({},{_id:0, __v:0})
+  locationModel.find()
                .then((result)=>{
                  res.json({message:"success", data:result})
                }).catch((error)=>{
@@ -44,11 +44,12 @@ router.post('/flower_register', function(req, res, next) {
   // save to db
   location.save()
           .then((result)=>{
-            res.send("success");
+            console.log("register result:", result);
+            res.json({message:"success", data:result})
           })
           .catch((error)=>{
             console.log(error);
-            res.send("failed");
+            res.json({message:"failed"});
           })
 });
 
