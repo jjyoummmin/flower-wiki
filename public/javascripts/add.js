@@ -22,9 +22,10 @@ $(function () {
             alert("위치정보 사용 불가능");
         }
     });
-
+    
+    //해당 url로 post 요청. data에 담긴 것은 어떤걸 등록 / 삭제 할 지
     let sendPostReq = async function (url, data, msg) {
-        let registered_doc=null;
+        let executed_doc=null;
         await $.ajax({
             type: "POST",
             url: url,
@@ -32,7 +33,7 @@ $(function () {
         }).done((res) => {
             if (res.message == "success"){
                 alert(`성공적으로 ${msg} 했습니다.`);
-                registered_doc = res.data;
+                executed_doc = res.data;
             } 
             else{
                 alert(`${msg} 실패했습니다.`);
@@ -40,10 +41,10 @@ $(function () {
         }).fail((err) => {
             console.log(err);
         })
-        return registered_doc;
+        return executed_doc;
     };
 
-    //새로 등록하는 용 마커, 인포윈도우 (register) 지도 클릭하면 뜨는 것
+    //(register) 새로 등록하는 용 마커, 인포윈도우  (지도 클릭하면 뜨는)
     (function () {
         var register_marker = new kakao.maps.Marker();
 
@@ -94,7 +95,7 @@ $(function () {
                 let new_data = { flower_type: selected_flower, lat: pos[0], lng: pos[1] };
                 // async 키워드를 썼기대문에 이제 sendPostReq함수는 promise를 리턴함!
                 sendPostReq('/flower_register', new_data, "등록").then((registered_doc)=>{
-                    console.log("registered:",registered_doc);
+                    console.log("db에 등록 :",registered_doc);
                     add_new_info_marker(registered_doc);
                 })
                 register_infowindow.close();
@@ -122,7 +123,7 @@ $(function () {
 
     })(); //register marker, infowindow
 
-    //이미 등록되어 있는 정보 마커로 표시하는 함수 (클로저로 구현)
+    //이미 등록되어 있는 정보들을 마커로 표시하는 함수 (클로저로 구현)
     let add_new_info_marker = (function () {
         var infowindow = new kakao.maps.InfoWindow({ removable: true });
         var iwcontent = (flower) => {
@@ -134,14 +135,17 @@ $(function () {
             return () => {
                 infowindow.setContent(iwcontent(target.flower_type));
                 infowindow.open(map, marker);
-                $(".delete_btn").on("click", deleteHandler(target));
+                $(".delete_btn").on("click", deleteHandler(target._id,marker));
             };
         }
 
-        let deleteHandler = function (target) {
+        let deleteHandler = function (id,marker) {
             return () => {
-                console.log("삭제합니다 :", target);
-                infowindow.close();
+                sendPostReq('/flower_delete', {id:id} , "삭제").then((deleted_doc)=>{
+                    console.log("db에서 삭제 :",deleted_doc);
+                    marker.setMap(null);
+                })
+                infowindow.close();    
             }
         }
 
@@ -169,7 +173,6 @@ $(function () {
             }
             const data = res.data;
             for (var target of data) {
-                console.log(target);
                 add_new_info_marker(target);
             }
         }).fail((err) => {

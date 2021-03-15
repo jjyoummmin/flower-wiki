@@ -8,34 +8,36 @@ var locationModel = require('../public/models/flower_location.js');
 
 let db = mongoose.connection;
 db.on('error', console.error);
-db.once('open', ()=>{
+db.once('open', () => {
   console.log('connected to mongoose server');
 })
 
 mongoose.connect(`mongodb+srv://dbjimin:${dbconfig.password}@firstmap.mjjdc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
-, {useNewUrlParser: true, useUnifiedTopology:true});
+  , { useNewUrlParser: true, useUnifiedTopology: true });
+
+
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   res.render('home', { title: 'Express' });
 });
 
-router.get('/add', function(req, res, next) {
+router.get('/add', function (req, res, next) {
   res.render('add');
 });
 
 
-router.get('/flower_fetch', function(req, res, next) {
+router.get('/flower_fetch', function (req, res, next) {
   locationModel.find()
-               .then((result)=>{
-                 res.json({message:"success", data:result})
-               }).catch((error)=>{
-                 res.json({message:"error"});
-               })
+    .then((result) => {
+      res.json({ message: "success", data: result })
+    }).catch((error) => {
+      res.json({ message: "error" });
+    })
 });
 
 
-router.post('/flower_register', function(req, res, next) {
+router.post('/flower_register', function (req, res, next) {
   let location = new locationModel();
   let body = req.body;
   location.flower_type = body.flower_type;
@@ -43,18 +45,27 @@ router.post('/flower_register', function(req, res, next) {
   location.lng = body.lng;
   // save to db
   location.save()
-          .then((result)=>{
-            console.log("register result:", result);
-            res.json({message:"success", data:result})
-          })
-          .catch((error)=>{
-            console.log(error);
-            res.json({message:"failed"});
-          })
+    .then((result) => {
+      res.json({ message: "success", data: result })
+    })
+    .catch((error) => {
+      console.log(error);
+      res.json({ message: "failed" });
+    })
 });
 
-// router.post('/flower_delete', function(req, res, next) {
-//    res.send("삭제 ㅎㅎ");
-// });
+//db delete by id
+router.post('/flower_delete', function (req, res, next) {
+  let id = req.body.id;
+  locationModel.findByIdAndRemove(id, function (error, docs) {
+    if (error) {
+      console.log(error)
+      res.json({ message: "failed" });
+    }
+    else {
+      res.json({ message: "success", data: docs })
+    }
+  });
+});
 
 module.exports = router;
