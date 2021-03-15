@@ -24,9 +24,9 @@ $(function(){
     //계절 메뉴 클릭
     $(".select_elem").on("click", function(e){
         let t = $(e.target).text()
-        let season = (t=="전체") ? all_flowers : flowers[t];
+        //let season = (t=="전체") ? all_flowers : flowers[t];
         console.log(`selected : ${t}`)
-        console.log(season);
+        //console.log(season);
     });
 
 

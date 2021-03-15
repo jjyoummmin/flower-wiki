@@ -49,14 +49,19 @@ $(function () {
         var register_marker = new kakao.maps.Marker();
 
         // let flowers = ["개나리", "해바라기", "소나무"];
-        let flowers = all_flowers;
-        let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
+        let flower_elems = "";
+        for(s in flowers){
+            for(f of flowers[s]){
+                flower_elems +=`<li><a class="el ${s}" href="#">${f}</a></li>`
+            }
+        }
+        //let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
         let content = `
         <div style="padding:10px">
             <div class="dropdown">
                 <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">꽃
                 <span class="caret"></span></button>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu" style="overflow-y:scroll; height:200px">
                     <input class="form-control" id="myInput" type="text" placeholder="Search..">
                     ${flower_elems}
                 </ul>
@@ -67,6 +72,7 @@ $(function () {
         var register_infowindow = new kakao.maps.InfoWindow({ content: content });
         var initial_click = true;
         let selected_flower;
+        let season;
         let pos;
 
         let event_register = () => {
@@ -79,11 +85,12 @@ $(function () {
 
             $(".el").on("click", function (e) {
                 selected_flower = $(e.target).text();
-                console.log(selected_flower, "clicked..");
+                season = $(e.target).attr('class').split(" ")[1];
+                console.log(season, selected_flower, "clicked..");
             });
 
             $(".cancel_btn").on("click", function (e) {
-                $("#myInput").val("");
+                $("#myInput").val('').trigger('keyup');
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
@@ -94,13 +101,13 @@ $(function () {
                     return;
                 }
                 console.log(selected_flower + "를 등록합니다.")
-                let new_data = { flower_type: selected_flower, lat: pos[0], lng: pos[1] };
+                let new_data = { flower_type: selected_flower, season , lat: pos[0], lng: pos[1] };
                 // async 키워드를 썼기대문에 이제 sendPostReq함수는 promise를 리턴함!
                 sendPostReq('/flower_register', new_data, "등록").then((registered_doc)=>{
                     console.log("db에 등록 :",registered_doc);
                     add_new_info_marker(registered_doc);
                 })
-                $("#myInput").val("");
+                $("#myInput").val('').trigger('keyup');
                 register_infowindow.close();
                 register_marker.setMap(null);
             });
