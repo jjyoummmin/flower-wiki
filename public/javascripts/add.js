@@ -162,24 +162,21 @@ $(function () {
     })();   // render one marker
 
     //db 모든 정보 가져와서 마커로 표시하기
-    (function () {
-        $.ajax({
-            url: "/flower_fetch",
-            type: "GET",
-        }).done((res) => {
-            if (res.message != "success") {
-                alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
-                return;
-            }
-            const data = res.data;
-            for (var target of data) {
-                add_new_info_marker(target);
-            }
-        }).fail((err) => {
-            console.log(err);
-        });
-
-    })(); // fetch all flowers
+    $.ajax({
+        url: "/flower_fetch",
+        type: "GET",
+    }).done((res) => {
+        if (res.message != "success") {
+            alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
+            return;
+        }
+        const data = res.data;
+        for (var target of data) {
+            add_new_info_marker(target);
+        }
+    }).fail((err) => {
+        console.log(err);
+    });
 
 });  //document ready
 
