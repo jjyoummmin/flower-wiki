@@ -5,7 +5,3 @@ let flowers = {
     "겨울": ["동백"]
 };
 
-// let all_flowers = [];
-// for (season in flowers){
-//     all_flowers = all_flowers.concat(flowers[season]);
-// }

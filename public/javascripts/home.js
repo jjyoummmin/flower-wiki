@@ -7,6 +7,7 @@ $(function(){
     var map = new naver.maps.Map('map', mapOptions);
     
     let markerList = [];
+    let infowindowList = [];
 
     //현재 위치 클릭
     $("#current").click(() => {
@@ -26,6 +27,7 @@ $(function(){
     
     //마커 표시 하기
     let render = function(season){
+
         let clickHandler = function (marker, infowindow){
             return () => {
                 if (infowindow.getMap()) {
@@ -50,14 +52,22 @@ $(function(){
     
                 var marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(target.lat, target.lng),
-                    map: map
+                    map: map,
+                    icon: {
+                        url: `/images/${target.flower_type}.png`,
+                        size: new naver.maps.Size(40, 40),
+                        scaledSize: new naver.maps.Size(40, 40),
+                        // origin: new naver.maps.Point(0, 0),
+                        anchor: new naver.maps.Point(20, 20)
+                    }
                 }); 
-
-                markerList.push(marker);
                 
                 var infowindow = new naver.maps.InfoWindow({
                     content: target.flower_type
                 });
+
+                markerList.push(marker);
+                infowindowList.push(infowindow);
                 
                 naver.maps.Event.addListener(marker, "click", clickHandler(marker,infowindow));
             }
@@ -74,6 +84,8 @@ $(function(){
     $(".select_elem").on("click", function(e){
         markerList.forEach(m=>m.setMap(null));
         markerList = [];
+        infowindowList.forEach(iw=>iw.close());
+        infowindowList = [];
         let season = $(e.target).text()
         console.log(`selected : ${season}`)
         render(season);
