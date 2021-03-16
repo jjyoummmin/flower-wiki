@@ -8,13 +8,14 @@ $(function () {
 
     var map = new kakao.maps.Map(container, options);
 
+
     //마커클러스터
     var clusterer = new kakao.maps.MarkerClusterer({
         map: map,
-        gridSize: 35,
+        gridSize: 100,
         averageCenter: true,
         minLevel: 7,
-        disableClickZoom: true,
+        disableClickZoom: false,
     });
 
 
@@ -33,7 +34,7 @@ $(function () {
         }
     });
 
-    //해당 url로 post 요청. 등록, 삭제 요청
+    // url로 post 요청 보내기. 등록, 삭제 요청
     let sendPostReq = async function (url, data, msg) {
         let executed_doc = null;
         await $.ajax({
@@ -54,18 +55,17 @@ $(function () {
         return executed_doc;
     };
 
-    //(register) 새로 등록하는 용 마커, 인포윈도우 
+    // 지도 클릭시 뜨는 새로 등록하는 용 마커, 인포윈도우 (register)
     (function () {
         var register_marker = new kakao.maps.Marker();
 
-        // let flowers = ["개나리", "해바라기", "소나무"];
         let flower_elems = "";
         for (s in flowers) {
             for (f of flowers[s]) {
                 flower_elems += `<li><a class="el ${s}" href="#">${f}</a></li>`
             }
         }
-        //let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
+
         let content = `
         <div style="padding:10px">
             <div class="dropdown">
@@ -211,7 +211,7 @@ $(function () {
         var rv = new kakao.maps.Roadview(document.getElementById('roadview'));
         var rvClient = new kakao.maps.RoadviewClient();
 
-
+        //로드뷰 화면 내에서 화살표 클릭해서 위치변경 발생시 (지도, 로드뷰마커 위치이동)
         kakao.maps.event.addListener(rv, 'position_changed', function () {
 
             var rvPosition = rv.getPosition();
@@ -230,7 +230,6 @@ $(function () {
                 offset: new kakao.maps.Point(20, 20)
             }
         );
-
         var rvmarker = new kakao.maps.Marker({
             image: markImage,
             position: new kakao.maps.LatLng(33.450701, 126.570667),
@@ -248,14 +247,13 @@ $(function () {
             if (!overlayOn) {
                 return;
             }
-
             var position = mouseEvent.latLng;
             rvmarker.setPosition(position);
             toggleRoadview(position);
         });
 
 
-        // 로드뷰 위치 설정
+        // 로드뷰 화면 위치 설정
         function toggleRoadview(position) {
             rvClient.getNearestPanoId(position, 50, function (panoId) {
                 if (panoId === null) {
@@ -267,7 +265,7 @@ $(function () {
             });
         }
 
-
+        // 지도, 로드뷰 화면 전체나 반반으로 토글
         function toggleMapWrapper(active, position) {
             var container = $('#container');
             // map이 화면전체
@@ -285,6 +283,7 @@ $(function () {
             }
         }
 
+        //지도에 로드뷰 파란선 토글
         function toggleOverlay(active) {
             if (active) {
                 overlayOn = true;
@@ -299,8 +298,7 @@ $(function () {
             }
         }
 
-
-
+        //로드뷰 버튼 누르기
         $("#roadviewControl").on("click", function (e) {
             //var control = $('#roadviewControl');
             var control = $(e.target);
@@ -314,6 +312,7 @@ $(function () {
             }
         });
 
+        // [X]버튼 누르기
         $("#close").on("click", function () {
             var position = rvmarker.getPosition();
             toggleMapWrapper(true, position);
