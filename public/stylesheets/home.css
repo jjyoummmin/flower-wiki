@@ -13,3 +13,12 @@
     border:0px;
     padding:11px;
 }
+
+.cluster{
+    font-size:10px;
+    border-radius:50%;
+    color:white;
+    text-align:center;
+    font-weight:bold;
+    background:rgba(135, 192, 61, 0.7);
+}

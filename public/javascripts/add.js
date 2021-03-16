@@ -8,6 +8,16 @@ $(function () {
 
     var map = new kakao.maps.Map(container, options);
 
+    //마커클러스터
+    var clusterer = new kakao.maps.MarkerClusterer({
+        map: map,
+        gridSize: 35,
+        averageCenter: true,
+        minLevel: 7,
+        disableClickZoom: true,
+    });
+
+
     // 현재 위치 클릭
     $("#current").on("click", function (e) {
         if ("geolocation" in navigator) {
@@ -153,6 +163,7 @@ $(function () {
             return () => {
                 sendPostReq('/flower_delete', {id:id} , "삭제").then((deleted_doc)=>{
                     console.log("db에서 삭제 :",deleted_doc);
+                    clusterer.removeMarker(marker);
                     marker.setMap(null);
                 })
                 infowindow.close();    
@@ -167,6 +178,7 @@ $(function () {
             });
 
             kakao.maps.event.addListener(marker, 'click', clickHandler(target, marker));
+            clusterer.addMarker(marker);
         }
         return marker_func;
     })();   // render one marker

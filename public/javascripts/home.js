@@ -90,6 +90,30 @@ $(function(){
         console.log(`selected : ${season}`)
         render(season);
     });
+
+    //마커 클러스터
+    const cluster1 = {
+        content:'<div class=cluster style="width:25px; height:25px; line-height:26px;"></div>'
+    }, cluster2 = {
+        content:'<div class=cluster style="width:30px; height:30px; line-height:31px;"></div>'
+    }, cluster3 = {
+        content:'<div class=cluster style="width:35px; height:35px; line-height:36px;"></div>'
+    };
+
+    var markerClustering = new MarkerClustering({
+        minClusterSize: 2,
+        maxZoom: 14,
+        map: map,
+        markers: markerList,
+        disableClickZoom: false,
+        gridSize: 100,
+        icons: [cluster1, cluster2, cluster3],
+        indexGenerator: [2,5,10],
+        stylingFunction: function (clusterMarker, count) {
+            $(clusterMarker.getElement()).find('div:first-child').text(count);
+        }
+    });
+
     
 
 })
