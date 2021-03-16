@@ -76,7 +76,7 @@ $(function(){
             console.log(err);
         });
 
-    };  // render seasonal markers
+    };  // render
 
     render("전체");
     

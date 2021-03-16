@@ -32,37 +32,37 @@ $(function () {
             alert("위치정보 사용 불가능");
         }
     });
-    
-    //해당 url로 post 요청. data에 담긴 것은 어떤걸 등록 / 삭제 할 지
+
+    //해당 url로 post 요청. 등록, 삭제 요청
     let sendPostReq = async function (url, data, msg) {
-        let executed_doc=null;
+        let executed_doc = null;
         await $.ajax({
             type: "POST",
             url: url,
             data: data,
         }).done((res) => {
-            if (res.message == "success"){
+            if (res.message == "success") {
                 alert(`성공적으로 ${msg} 했습니다.`);
                 executed_doc = res.data;
-            } 
-            else{
+            }
+            else {
                 alert(`${msg} 실패했습니다.`);
-            } 
+            }
         }).fail((err) => {
             console.log(err);
         })
         return executed_doc;
     };
 
-    //(register) 새로 등록하는 용 마커, 인포윈도우  (지도 클릭하면 뜨는)
+    //(register) 새로 등록하는 용 마커, 인포윈도우 
     (function () {
         var register_marker = new kakao.maps.Marker();
 
         // let flowers = ["개나리", "해바라기", "소나무"];
         let flower_elems = "";
-        for(s in flowers){
-            for(f of flowers[s]){
-                flower_elems +=`<li><a class="el ${s}" href="#">${f}</a></li>`
+        for (s in flowers) {
+            for (f of flowers[s]) {
+                flower_elems += `<li><a class="el ${s}" href="#">${f}</a></li>`
             }
         }
         //let flower_elems = flowers.reduce((a, x) => a + `<li><a class="el" href="#">${x}</a></li>`, "");
@@ -111,10 +111,10 @@ $(function () {
                     return;
                 }
                 console.log(selected_flower + "를 등록합니다.")
-                let new_data = { flower_type: selected_flower, season , lat: pos[0], lng: pos[1] };
+                let new_data = { flower_type: selected_flower, season, lat: pos[0], lng: pos[1] };
                 // async 키워드를 썼기대문에 이제 sendPostReq함수는 promise를 리턴함!
-                sendPostReq('/flower_register', new_data, "등록").then((registered_doc)=>{
-                    console.log("db에 등록 :",registered_doc);
+                sendPostReq('/flower_register', new_data, "등록").then((registered_doc) => {
+                    console.log("db에 등록 :", registered_doc);
                     add_new_info_marker(registered_doc);
                 })
                 $("#myInput").val('').trigger('keyup');
@@ -125,6 +125,9 @@ $(function () {
         }
 
         kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+            if(overlayOn){
+                return;
+            }
             var latlng = mouseEvent.latLng;
             pos = [latlng.Ma, latlng.La];
             register_marker.setPosition(latlng);
@@ -155,18 +158,18 @@ $(function () {
             return () => {
                 infowindow.setContent(iwcontent(target.flower_type));
                 infowindow.open(map, marker);
-                $(".delete_btn").on("click", deleteHandler(target._id,marker));
+                $(".delete_btn").on("click", deleteHandler(target._id, marker));
             };
         }
 
-        let deleteHandler = function (id,marker) {
+        let deleteHandler = function (id, marker) {
             return () => {
-                sendPostReq('/flower_delete', {id:id} , "삭제").then((deleted_doc)=>{
-                    console.log("db에서 삭제 :",deleted_doc);
+                sendPostReq('/flower_delete', { id: id }, "삭제").then((deleted_doc) => {
+                    console.log("db에서 삭제 :", deleted_doc);
                     clusterer.removeMarker(marker);
                     marker.setMap(null);
                 })
-                infowindow.close();    
+                infowindow.close();
             }
         }
 
@@ -181,13 +184,13 @@ $(function () {
             clusterer.addMarker(marker);
         }
         return marker_func;
-    })();   // render one marker
+    })();   // add_new_info_marker
 
     //db 모든 정보 가져와서 마커로 표시하기
     $.ajax({
         url: "/flower_fetch",
         type: "POST",
-        data: {season:"전체"}
+        data: { season: "전체" }
     }).done((res) => {
         if (res.message != "success") {
             alert("기존 꽃 위치 정보를 가져오는데 실패했습니다.");
@@ -200,6 +203,125 @@ $(function () {
     }).fail((err) => {
         console.log(err);
     });
+
+
+    //로드뷰
+    var overlayOn = false;
+    (function () {
+        var rv = new kakao.maps.Roadview(document.getElementById('roadview'));
+        var rvClient = new kakao.maps.RoadviewClient();
+
+
+        kakao.maps.event.addListener(rv, 'position_changed', function () {
+
+            var rvPosition = rv.getPosition();
+            map.setCenter(rvPosition);
+
+            if (overlayOn) {
+                rvmarker.setPosition(rvPosition);
+            }
+        });
+
+
+        var markImage = new kakao.maps.MarkerImage(
+            '/images/robot.png',
+            new kakao.maps.Size(40, 45),
+            {
+                offset: new kakao.maps.Point(20, 20)
+            }
+        );
+
+        var rvmarker = new kakao.maps.Marker({
+            image: markImage,
+            position: new kakao.maps.LatLng(33.450701, 126.570667),
+            draggable: true
+        });
+
+
+        kakao.maps.event.addListener(rvmarker, 'dragend', function (mouseEvent) {
+            var position = rvmarker.getPosition();
+            toggleRoadview(position);
+        });
+
+
+        kakao.maps.event.addListener(map, 'click', function (mouseEvent) {
+            if (!overlayOn) {
+                return;
+            }
+
+            var position = mouseEvent.latLng;
+            rvmarker.setPosition(position);
+            toggleRoadview(position);
+        });
+
+
+        // 로드뷰 위치 설정
+        function toggleRoadview(position) {
+            rvClient.getNearestPanoId(position, 50, function (panoId) {
+                if (panoId === null) {
+                    toggleMapWrapper(true, position);
+                } else {
+                    toggleMapWrapper(false, position);
+                    rv.setPanoId(panoId, position);
+                }
+            });
+        }
+
+
+        function toggleMapWrapper(active, position) {
+            var container = $('#container');
+            // map이 화면전체
+            if (active) {
+                container.removeClass();
+                map.relayout();
+                map.setCenter(position);
+            } else {
+                //map , 로드뷰 반반
+                if (!container.hasClass("view_roadview")) {
+                    container.addClass("view_roadview");
+                    map.relayout();
+                    map.setCenter(position);
+                }
+            }
+        }
+
+        function toggleOverlay(active) {
+            if (active) {
+                overlayOn = true;
+                map.addOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW);
+                rvmarker.setMap(map);
+                rvmarker.setPosition(map.getCenter());
+                toggleRoadview(map.getCenter());
+            } else {
+                overlayOn = false;
+                map.removeOverlayMapTypeId(kakao.maps.MapTypeId.ROADVIEW);
+                rvmarker.setMap(null);
+            }
+        }
+
+
+
+        $("#roadviewControl").on("click", function (e) {
+            //var control = $('#roadviewControl');
+            var control = $(e.target);
+
+            if (!control.hasClass('active')) {
+                control.addClass('active');
+                toggleOverlay(true);
+            } else {
+                control.removeClass();
+                toggleOverlay(false);
+            }
+        });
+
+        $("#close").on("click", function () {
+            var position = rvmarker.getPosition();
+            toggleMapWrapper(true, position);
+        });
+
+
+    })(); //roadview
+
 
 });  //document ready
 
