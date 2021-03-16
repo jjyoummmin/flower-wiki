@@ -54,10 +54,9 @@ $(function(){
                     position: new naver.maps.LatLng(target.lat, target.lng),
                     map: map,
                     icon: {
-                        url: `/images/${target.flower_type}.png`,
+                        url: `/images/flowers/${target.flower_type}.png`,
                         size: new naver.maps.Size(40, 40),
                         scaledSize: new naver.maps.Size(40, 40),
-                        // origin: new naver.maps.Point(0, 0),
                         anchor: new naver.maps.Point(20, 20)
                     }
                 }); 
