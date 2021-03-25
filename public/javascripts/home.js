@@ -68,6 +68,7 @@ $(function () {
             }
             markerCluster = new MarkerClustering(options);
             markerCluster.setMarkers(markerList);
+            markerCluster._redraw();
 
         };
     })();
