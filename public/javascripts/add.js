@@ -37,21 +37,18 @@ $(function () {
     // url로 post 요청 보내기. 등록, 삭제 요청
     let sendPostReq = async function (url, data, msg) {
         let executed_doc = null;
-        await $.ajax({
-            type: "POST",
-            url: url,
-            data: data,
-        }).done((res) => {
+        try{
+            let res = await $.ajax({ type: "POST", url: url, data: data });
             if (res.message == "success") {
                 alert(`성공적으로 ${msg} 했습니다.`);
                 executed_doc = res.data;
-            }
-            else {
+            }else {
                 alert(`${msg} 실패했습니다.`);
             }
-        }).fail((err) => {
+            
+        }catch(err){
             console.log(err);
-        })
+        } 
         return executed_doc;
     };
 
