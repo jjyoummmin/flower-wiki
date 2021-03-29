@@ -15,7 +15,7 @@
    
     KAKAOKEY = ( 카카오 앱키 [javascript 키] )
     
-    NAVERKEY = ( 네이버 앱키 [)
+    NAVERKEY = ( 네이버 앱키 [client ID] )
 ```
 4. npm start
 
