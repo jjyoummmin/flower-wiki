@@ -3,7 +3,6 @@ var router = express.Router();
 
 // DB 연결
 var mongoose = require('mongoose');
-var dbconfig = require('../config/dbadmin.json');
 var locationModel = require('../public/models/flower_location.js');
 
 let db = mongoose.connection;
@@ -12,18 +11,17 @@ db.once('open', () => {
   console.log('connected to mongoose server');
 })
 
-mongoose.connect(`mongodb+srv://dbjimin:${dbconfig.password}@firstmap.mjjdc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
+mongoose.connect(process.env.MONGODBURI
   , { useNewUrlParser: true, useUnifiedTopology: true });
-
 
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  res.render('home', { title: 'Express' });
+  res.render('home', { naverkey : process.env.NAVERKEY });
 });
 
 router.get('/add', function (req, res, next) {
-  res.render('add');
+  res.render('add', { kakaokey : process.env.KAKAOKEY });
 });
 
 
