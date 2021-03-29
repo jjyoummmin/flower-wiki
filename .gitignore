@@ -1,5 +1,5 @@
 # config files
-/config/.env
+.env
 
 # dependencies
 /node_modules
